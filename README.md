@@ -14,3 +14,23 @@ this contract will get deployed with some tokens minted for the distribution to 
 - launch ERC20 token
 - implement reward allocation logic
 - safe deposit/withdraw functions (avoid common attack vectors)
+
+
+################# SOLUTION #########################
+
+
+## Solution Design Choices
+The ERC-20 implemention is pretty standard. For the Staker contract the following design choices were made:
+1) Mapping was used to keep track of all staking participants rather than using dynamic arrays.
+2) For staking, some implementations burn the staked tokens and re-mint them upon withdrawl to avoid user misbehaviour. I have taken a different approach. The tokens are instead transferred to the staker contract's address when staked hence barring stakers from gaming the system.
+3) The staking participant uses the ERC-20 approve function to pre-approve the staker contract to take over their staked funds. A different approach could be to implement onTokenTransfer() receiver or to use burning instead of transferring.
+4) The token and staker contracts are decoupled. When the staker contract is deployed, the token contract must send it tokens so that it can reward participants. This can be done pre or post deployment.
+5) For rewarding, the scheme used is 100 tokens rewarded every block. The participants get a share of these tokens in propotion to their stake percentage.
+6) Keep in mind that the token is implemented with 18 decimals. Hence the reward is represented as 100 ** 18. The total supply cap is 1 billion tokens. The ERC-20 starts with 100 million tokens and the miner can mint the rest but not go beyond the 1 billion hardcap.
+7) For staking reward calculation, multiple strategies are possible. The current strategy is very simple. At the time of withdrawl, it determines the stake percentage of the participant and rewards them accordingly. The rewards are also updated every time a new deposit is made or by calling a reward update public function. So, participants essentially claim their rewards themselves. A different approach could be having the system administrators updating all contract's rewards periodically but then they would have to pay for the large amount of gas fee. Another way could be updating the rewards for all accounts each time a participant deposit or withdrawl is made. This places unneccessary gas fee burden on small participants and disincentivizes moving staked tokens.
+
+## User Documentation:
+1) Send funds to the Staker contract after deploying
+2) The ERC-20 contract address is hardcoded in the staker contract and must be updated before deploying. 
+3) For staking participants, the must first ERC-20 approve their stake amount before calling the deposit function.
+4) Withdraw results in the withdrawl of the entire staked amount and fractional withdrawls have not been implemented for the sake of simplicity. 
