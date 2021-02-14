@@ -16,7 +16,7 @@ this contract will get deployed with some tokens minted for the distribution to 
 - safe deposit/withdraw functions (avoid common attack vectors)
 
 
-################# SOLUTION #########################
+### SOLUTION #########################
 
 
 ## Solution Design Choices
